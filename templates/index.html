@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MailTriage - Classificador de Emails</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 MailTriage</h1>
+            <p>Cole o texto de um email abaixo para classificá-lo e receber uma sugestão de resposta.</p>
+        </header>
+        
+        <main>
+            <form id="email-form">
+                <textarea id="email-text" name="email_text" rows="10" placeholder="Digite ou cole o texto do email aqui..."></textarea>
+                <button type="submit">Analisar Email</button>
+            </form>
+
+            <div id="result-container" class="hidden">
+                <h2>Resultado da Análise</h2>
+                <div id="classification">
+                    <strong>Categoria:</strong> 
+                    <span id="category-tag"></span>
+                </div>
+                <div id="suggested-response">
+                    <strong>Resposta Sugerida:</strong>
+                    <p id="response-text"></p>
+                </div>
+            </div>
+
+            <div id="loader" class="hidden"></div>
+        </main>
+    </div>
+
+    <script>
+        /////////////////////
+    </script>
+</body>
+</html>
