@@ -39,7 +39,7 @@ textarea {
     border: 1px solid #ddd;
     font-size: 1em;
     box-sizing: border-box;
-    resize: vertical; /* Permite que o usuário redimensione a altura */
+    resize: vertical; 
 }
 
 button {
@@ -84,8 +84,8 @@ button:hover {
     font-size: 0.9em;
 }
 
-.produtivo { background-color: #27ae60; } /* Verde */
-.improdutivo { background-color: #e67e22; } /* Laranja */
+.produtivo { background-color: #27ae60; } 
+.improdutivo { background-color: #e67e22; }
 
 #response-text {
     margin-top: 10px;

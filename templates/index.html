@@ -37,7 +37,55 @@
     </div>
 
     <script>
-        /////////////////////
+            const form = document.getElementById('email-form');
+    const emailText = document.getElementById('email-text');
+    const resultContainer = document.getElementById('result-container');
+    const categoryTag = document.getElementById('category-tag');
+    const responseText = document.getElementById('response-text');
+    const loader = document.getElementById('loader');
+
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const text = emailText.value;
+        if (!text.trim()) {
+            alert('Por favor, insira o texto de um email.');
+            return;
+        }
+
+        loader.classList.remove('hidden');
+        resultContainer.classList.add('hidden');
+
+        try {
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email_text: text })
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao comunicar com o servidor.');
+            }
+
+            const result = await response.json();
+
+            categoryTag.textContent = result.classification;
+            responseText.textContent = result.suggestion;
+
+            categoryTag.className = 'category-tag';
+            categoryTag.classList.add(result.classification.toLowerCase());
+
+            resultContainer.classList.remove('hidden');
+
+        } catch (error) {
+            console.error('Ocorreu um erro:', error);
+            alert('Não foi possível analisar o email. Tente novamente.');
+        } finally {
+            loader.classList.add('hidden');
+        }
+    });
     </script>
 </body>
 </html>
