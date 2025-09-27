@@ -1,88 +1,71 @@
-# app.py
-import os
-import json
 from flask import Flask, render_template, request, jsonify
-from transformers import pipeline
+from utils.email_processor import process_email
+from utils.ai_classifier import classify_email, generate_response
+import os
+from dotenv import load_dotenv
+
+# Carregar variáveis de ambiente
+load_dotenv()
 
 app = Flask(__name__)
 
-# --- CARREGANDO O MODELO DE IA LOCALMENTE ---
-try:
-    print("Carregando o modelo de IA... Isso pode levar um momento.")
-    classifier = pipeline("text2text-generation", model="t5-small")
-    print("Modelo carregado com sucesso!")
-except Exception as e:
-    print(f"Erro ao carregar o modelo: {e}")
-    classifier = None
-# ---------------------------------------------
-
 @app.route('/')
-def home():
+def index():
     return render_template('index.html')
 
-@app.route('/analyze', methods=['POST'])
-def analyze():
-    if not classifier:
-        return jsonify({'error': 'Modelo de IA não foi carregado corretamente.'}), 500
-
-    data = request.get_json()
-    email_text = data.get('email_text', '')
-
-    if not email_text:
-        return jsonify({'error': 'Nenhum texto de email fornecido.'}), 400
-
+@app.route('/classify', methods=['POST'])
+def classify():
     try:
-        # --- PROMPT MELHORADO COM EXEMPLOS (FEW-SHOT) ---
-        prompt = f"""
-        task: Classify the email as "Produtivo" or "Improdutivo" and suggest a short professional response in Portuguese.
-        format: CLASSIFICATION: [category] | SUGGESTION: [response]
-
-        example 1:
-        email text: "Olá, poderiam me ajudar com o problema no sistema?"
-        output: CLASSIFICATION: Produtivo | SUGGESTION: Olá! Recebemos sua solicitação de suporte e nossa equipe irá verificar o problema em breve. Atenciosamente.
-
-        example 2:
-        email text: "Obrigado por tudo!"
-        output: CLASSIFICATION: Improdutivo | SUGGESTION: Olá! Agradecemos o seu contato. Atenciosamente.
-
-        ---
-
-        Now, complete the following:
-        email text: "{email_text}"
-        output:
-        """
-
-        result = classifier(prompt, max_length=150, min_length=20, do_sample=False)
-        generated_text = result[0]['generated_text']
+        # Obter o conteúdo do email de forma mais robusta
+        email_content = ""
         
-        # --- LÓGICA DE EXTRAÇÃO MAIS ROBUSTA ---
-        # Procura pelos marcadores no texto gerado
-        class_marker = "CLASSIFICATION:"
-        sugg_marker = "SUGGESTION:"
+        print("Recebendo requisição...")  # Debug
         
-        class_start_index = generated_text.find(class_marker)
-        sugg_start_index = generated_text.find(sugg_marker)
-
-        # Se ambos os marcadores forem encontrados, extrai o conteúdo
-        if class_start_index != -1 and sugg_start_index != -1:
-            class_end_index = generated_text.find("|", class_start_index)
-            classification = generated_text[class_start_index + len(class_marker) : class_end_index].strip()
-            suggestion = generated_text[sugg_start_index + len(sugg_marker) :].strip()
+        # Verificar se é upload de arquivo
+        if 'file' in request.files:
+            file = request.files['file']
+            if file and file.filename != '':
+                print(f"Processando arquivo: {file.filename}")  # Debug
+                if file.filename.endswith('.txt'):
+                    email_content = file.read().decode('utf-8')
+                elif file.filename.endswith('.pdf'):
+                    email_content = "Arquivo PDF - conteúdo será processado em breve"
+                else:
+                    return jsonify({'error': 'Formato de arquivo não suportado'}), 400
+        # Verificar se é texto direto (JSON)
+        elif request.is_json:
+            data = request.get_json()
+            email_content = data.get('text', '')
+            print(f"Texto recebido: {email_content[:100]}...")  # Debug
         else:
-            # Se o formato não for seguido, define um resultado padrão para evitar erros
-            classification = "Não identificado"
-            suggestion = "Não foi possível gerar uma sugestão."
+            # Tentar obter de form-data
+            email_content = request.form.get('text', '')
         
-        result_json = {
-            "classification": classification,
-            "suggestion": suggestion
-        }
-
-        return jsonify(result_json)
-
+        print(f"Conteúdo do email: {len(email_content)} caracteres")  # Debug
+        
+        if not email_content or not email_content.strip():
+            return jsonify({'error': 'Nenhum conteúdo de email fornecido'}), 400
+        
+        # Processar e classificar o email
+        processed_text = process_email(email_content)
+        classification = classify_email(email_content)  # Usar texto original para melhor análise
+        response = generate_response(email_content, classification)
+        
+        return jsonify({
+            'classification': classification,
+            'response': response,
+            'debug': {
+                'processed_length': len(processed_text),
+                'original_length': len(email_content)
+            }
+        })
+        
     except Exception as e:
-        print(f"Erro ao processar o texto: {e}")
-        return jsonify({'error': 'Falha ao processar o e-mail com a IA local.'}), 500
+        print(f"Erro no processamento: {e}")
+        import traceback
+        print(traceback.format_exc())  # Debug detalhado
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    debug_mode = os.getenv('DEBUG', 'False').lower() == 'true'
+    app.run(debug=debug_mode, host='0.0.0.0', port=5000)

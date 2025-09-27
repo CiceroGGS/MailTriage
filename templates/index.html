@@ -3,89 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MailTriage - Classificador de Emails</title>
-    
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Classificador de Emails - AutoU</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🚀 MailTriage</h1>
-            <p>Cole o texto de um email abaixo para classificá-lo e receber uma sugestão de resposta.</p>
+        <header class="header">
+            <h1><i class="fas fa-robot"></i> Classificador de Emails</h1>
+            <p>Automatize a classificação e resposta de emails com IA</p>
         </header>
-        
-        <main>
-            <form id="email-form">
-                <textarea id="email-text" name="email_text" rows="10" placeholder="Digite ou cole o texto do email aqui..."></textarea>
-                <button type="submit">Analisar Email</button>
-            </form>
 
-            <div id="result-container" class="hidden">
-                <h2>Resultado da Análise</h2>
-                <div id="classification">
-                    <strong>Categoria:</strong> 
-                    <span id="category-tag"></span>
-                </div>
-                <div id="suggested-response">
-                    <strong>Resposta Sugerida:</strong>
-                    <p id="response-text"></p>
+        <div class="main-content">
+            <div class="upload-section">
+                <div class="card">
+                    <h2><i class="fas fa-upload"></i> Analisar Email</h2>
+                    
+                    <div class="tabs">
+                        <button class="tab-button active" onclick="openTab('text-tab')">
+                            <i class="fas fa-font"></i> Texto
+                        </button>
+
+                    </div>
+
+                    <div id="text-tab" class="tab-content active">
+                        <textarea id="email-text" placeholder="Cole o conteúdo do email aqui..."></textarea>
+                    </div>
+
+                    <div id="file-tab" class="tab-content">
+                        <div class="file-upload">
+                            <input type="file" id="file-input" accept=".txt,.pdf">
+                            <label for="file-input" class="file-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Escolher arquivo (.txt ou .pdf)</span>
+                            </label>
+                            <div id="file-name"></div>
+                        </div>
+                    </div>
+
+                    <button id="analyze-btn" class="analyze-button">
+                        <i class="fas fa-magic"></i> Analisar Email
+                    </button>
                 </div>
             </div>
 
-            <div id="loader" class="hidden"></div>
-        </main>
+            <div class="results-section">
+                <div id="results" class="card hidden">
+                    <h2><i class="fas fa-chart-bar"></i> Resultados</h2>
+                    
+                    <div class="result-item">
+                        <label>Classificação:</label>
+                        <span id="classification" class="classification-badge"></span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <label>Resposta Sugerida:</label>
+                        <div id="suggested-response" class="response-box"></div>
+                    </div>
+
+                    <div class="actions">
+                        <button id="copy-btn" class="action-button">
+                            <i class="fas fa-copy"></i> Copiar Resposta
+                        </button>
+                        <button id="new-analysis" class="action-button secondary">
+                            <i class="fas fa-redo"></i> Nova Análise
+                        </button>
+                    </div>
+                </div>
+
+                <div id="loading" class="card hidden">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Analisando email...</p>
+                    </div>
+                </div>
+
+                <div id="error" class="card error hidden">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p id="error-message"></p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Desenvolvido para o processo seletivo AutoU</p>
+        </footer>
     </div>
 
-    <script>
-            const form = document.getElementById('email-form');
-    const emailText = document.getElementById('email-text');
-    const resultContainer = document.getElementById('result-container');
-    const categoryTag = document.getElementById('category-tag');
-    const responseText = document.getElementById('response-text');
-    const loader = document.getElementById('loader');
-
-    form.addEventListener('submit', async function(event) {
-        event.preventDefault();
-
-        const text = emailText.value;
-        if (!text.trim()) {
-            alert('Por favor, insira o texto de um email.');
-            return;
-        }
-
-        loader.classList.remove('hidden');
-        resultContainer.classList.add('hidden');
-
-        try {
-            const response = await fetch('/analyze', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email_text: text })
-            });
-
-            if (!response.ok) {
-                throw new Error('Erro ao comunicar com o servidor.');
-            }
-
-            const result = await response.json();
-
-            categoryTag.textContent = result.classification;
-            responseText.textContent = result.suggestion;
-
-            categoryTag.className = 'category-tag';
-            categoryTag.classList.add(result.classification.toLowerCase());
-
-            resultContainer.classList.remove('hidden');
-
-        } catch (error) {
-            console.error('Ocorreu um erro:', error);
-            alert('Não foi possível analisar o email. Tente novamente.');
-        } finally {
-            loader.classList.add('hidden');
-        }
-    });
-    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
