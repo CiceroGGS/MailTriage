@@ -10,20 +10,6 @@ Projeto desenvolvido para o desafio prático do processo seletivo da **AutoU**.
 
 ---
 
-## 🔗 Links Rápidos
-
-* **Ver a Aplicação Online:** **[LINK-DA-APLICACAO-ONLINE-AQUI]**
-* **Assistir Vídeo de Apresentação:** **[LINK-PARA-O-VIDEO-NO-YOUTUBE-AQUI]**
-
----
-
-## 🖥️ Demonstração
-
-*(Substitua o link abaixo por um GIF da sua aplicação em funcionamento)*
-![Demonstração do MailTriage](https://i.imgur.com/vj5nC14.gif)
-
----
-
 ## 📝 Visão Geral
 
 O MailTriage foi projetado para resolver o problema de alto volume de e-mails em ambientes corporativos. A aplicação utiliza o poder do modelo de linguagem **Llama 3.1**, servido através da **API de alta velocidade da Groq**, para analisar o conteúdo de um e-mail, classificá-lo como **Produtivo** (requer ação) ou **Improdutivo** (não requer ação), e gerar uma resposta dinâmica e contextual em tempo real. A arquitetura é modular e otimizada para performance e manutenibilidade.
