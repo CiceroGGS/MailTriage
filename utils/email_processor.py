@@ -4,7 +4,6 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
 
-# Download necessário do NLTK (executar uma vez)
 try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
@@ -21,19 +20,9 @@ class EmailProcessor:
         self.stemmer = PorterStemmer()
     
     def clean_text(self, text):
-        # Remover cabeçalhos de email
-        text = re.sub(r'From:.*?\n', '', text)
-        text = re.sub(r'To:.*?\n', '', text)
-        text = re.sub(r'Subject:.*?\n', '', text)
-        text = re.sub(r'Date:.*?\n', '', text)
-        
-        # Remover caracteres especiais e números
+        text = re.sub(r'From:.*?\n|To:.*?\n|Subject:.*?\n|Date:.*?\n', '', text, flags=re.IGNORECASE)
         text = re.sub(r'[^a-zA-ZáéíóúÁÉÍÓÚãõâêîôûàèìòùç\s]', '', text)
-        text = re.sub(r'\d+', '', text)
-        
-        # Converter para minúsculas
         text = text.lower()
-        
         return text
     
     def tokenize_and_stem(self, text):

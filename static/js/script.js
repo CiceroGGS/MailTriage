@@ -33,7 +33,6 @@ document.getElementById('analyze-btn').addEventListener('click', async function(
             showError('Por favor, selecione um arquivo');
             return;
         }
-        // Para arquivos .txt, ler conteúdo
         const file = fileInput.files[0];
         if (file.type === 'text/plain') {
             content = await readTextFile(file);
@@ -125,7 +124,6 @@ function readTextFile(file) {
     });
 }
 
-// Copiar resposta para clipboard
 document.getElementById('copy-btn').addEventListener('click', function() {
     const response = document.getElementById('suggested-response').textContent;
     navigator.clipboard.writeText(response).then(() => {
