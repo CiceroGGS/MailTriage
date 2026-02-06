@@ -59,11 +59,6 @@ Para cada e-mail, o sistema segue um fluxo direto e eficiente:
 * **Inteligência Artificial:**
     * **Groq Cloud API**
     * **Modelo:** `llama-3.1-8b-instant`
-
-* **DevOps:**
-    * Git & GitHub
-    * Hospedagem: [EX: Render, Vercel, etc.]
-
 ---
 
 ## ▶️ Como Executar Localmente
